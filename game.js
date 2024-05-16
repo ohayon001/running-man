@@ -3,8 +3,8 @@ const ctx = canvas.getContext('2d');
 
 let player = {
     x: 50,
-    y: canvas.height - 40, // Adjust to touch the ground
-    radius: 10, // Make the player ball smaller
+    y: canvas.height - 40, // 地面に接するように調整
+    radius: 10, // 主人公のたまを小さくする
     speed: 5,
     gravity: 1,
     jumpPower: 15,
@@ -14,7 +14,7 @@ let player = {
 };
 
 let obstacles = [];
-let gameSpeed = 1.5; // Slow down enemy speed
+let gameSpeed = 1.5; // 敵の速度を遅くする
 let score = 0;
 let keys = {};
 let gameOver = false;
@@ -23,8 +23,8 @@ document.addEventListener('keydown', (e) => keys[e.key] = true);
 document.addEventListener('keyup', (e) => keys[e.key] = false);
 
 function createObstacle() {
-    if (Math.random() < 0.01) { // Reduce the number of enemies
-        const height = Math.random() * 30 + 10; // Make enemies lower
+    if (Math.random() < 0.01) { // 敵の出現確率を低くする
+        const height = Math.random() * 30 + 10; // 敵の高さを低くする
         const obstacle = {
             x: canvas.width,
             y: canvas.height - height - 30, // Adjust to touch the ground
@@ -155,11 +155,14 @@ function handleGamepad() {
 
 function startGame() {
     window.addEventListener('keydown', handleKeyDown);
-    window.addEventListener('gamepadconnected', () => {
-        console.log('Gamepad connected');
+    window.addEventListener('gamepadconnected', (event) => {
+        console.log('Gamepad connected at index %d: %s. %d buttons, %d axes.',
+          event.gamepad.index, event.gamepad.id,
+          event.gamepad.buttons.length, event.gamepad.axes.length);
     });
-    window.addEventListener('gamepaddisconnected', () => {
-        console.log('Gamepad disconnected');
+    window.addEventListener('gamepaddisconnected', (event) => {
+        console.log('Gamepad disconnected from index %d: %s',
+          event.gamepad.index, event.gamepad.id);
     });
     gameLoop();
 }
