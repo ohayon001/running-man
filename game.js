@@ -1,5 +1,6 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
+const status = document.getElementById('status');
 
 let player = {
     x: 50,
@@ -21,6 +22,10 @@ let gameOver = false;
 
 document.addEventListener('keydown', (e) => keys[e.key] = true);
 document.addEventListener('keyup', (e) => keys[e.key] = false);
+
+function updateStatus(message) {
+    status.textContent = message;
+}
 
 function createObstacle() {
     if (Math.random() < 0.01) { // Reduce the number of enemies
@@ -133,6 +138,7 @@ function handleGamepad() {
     const gamepads = navigator.getGamepads();
     if (gamepads[0]) {
         const gamepad = gamepads[0];
+        updateStatus(`Gamepad connected: ${gamepad.id}`);
         console.log(`Gamepad connected: ${gamepad.id}`);
         console.log(`Axes: ${gamepad.axes}, Buttons: ${gamepad.buttons.map(b => b.pressed)}`);
 
@@ -150,6 +156,8 @@ function handleGamepad() {
             player.isJumping = true;
             player.velocityY = player.jumpPower;
         }
+    } else {
+        updateStatus('コントローラーを接続してください...');
     }
 }
 
@@ -159,10 +167,12 @@ function startGame() {
         console.log('Gamepad connected at index %d: %s. %d buttons, %d axes.',
           event.gamepad.index, event.gamepad.id,
           event.gamepad.buttons.length, event.gamepad.axes.length);
+        updateStatus(`Gamepad connected: ${event.gamepad.id}`);
     });
     window.addEventListener('gamepaddisconnected', (event) => {
         console.log('Gamepad disconnected from index %d: %s',
           event.gamepad.index, event.gamepad.id);
+        updateStatus('コントローラーを接続してください...');
     });
     gameLoop();
 }
