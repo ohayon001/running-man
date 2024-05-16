@@ -3,7 +3,7 @@ const ctx = canvas.getContext('2d');
 
 let player = {
     x: 50,
-    y: canvas.height - 30,
+    y: canvas.height - 40, // 地面に接するように調整
     radius: 10, // 主人公のたまを小さくする
     speed: 5,
     gravity: 1,
@@ -23,19 +23,21 @@ document.addEventListener('keydown', (e) => keys[e.key] = true);
 document.addEventListener('keyup', (e) => keys[e.key] = false);
 
 function createObstacle() {
-    const height = Math.random() * 100 + 20;
-    const obstacle = {
-        x: canvas.width,
-        y: canvas.height - height,
-        width: 20,
-        height: height
-    };
-    obstacles.push(obstacle);
+    if (Math.random() < 0.01) { // 敵の出現確率を低くする
+        const height = Math.random() * 30 + 10; // 敵の高さを低くする
+        const obstacle = {
+            x: canvas.width,
+            y: canvas.height - height,
+            width: 20,
+            height: height
+        };
+        obstacles.push(obstacle);
+    }
 }
 
 function resetGame() {
     player.x = 50;
-    player.y = canvas.height - 30;
+    player.y = canvas.height - 40;
     player.velocityY = 0;
     player.isJumping = false;
     obstacles = [];
@@ -51,30 +53,20 @@ function update() {
     ctx.fillStyle = '#87CEEB'; // Sky color
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Draw mountains
-    ctx.fillStyle = '#4682B4';
-    ctx.beginPath();
-    ctx.moveTo(0, canvas.height);
-    ctx.lineTo(200, 100);
-    ctx.lineTo(400, canvas.height);
-    ctx.fill();
-
-    ctx.beginPath();
-    ctx.moveTo(400, canvas.height);
-    ctx.lineTo(600, 150);
-    ctx.lineTo(800, canvas.height);
-    ctx.fill();
+    // Draw ground
+    ctx.fillStyle = '#654321';
+    ctx.fillRect(0, canvas.height - 30, canvas.width, 30);
 
     // Player movement
-    if (keys['ArrowLeft']) {
+    if (keys['ArrowLeft'] || (keys['GamepadLeft'] && player.x > 0)) {
         player.x -= player.speed;
         player.moveDirection = -1;
     }
-    if (keys['ArrowRight']) {
+    if (keys['ArrowRight'] || (keys['GamepadRight'] && player.x < canvas.width - player.radius)) {
         player.x += player.speed;
         player.moveDirection = 1;
     }
-    if (keys['ArrowUp'] && !player.isJumping) {
+    if ((keys['ArrowUp'] || keys['GamepadA']) && !player.isJumping) {
         player.isJumping = true;
         player.velocityY = player.jumpPower;
     }
@@ -83,9 +75,9 @@ function update() {
     if (player.isJumping) {
         player.velocityY -= player.gravity;
         player.y -= player.velocityY;
-        if (player.y >= canvas.height - player.radius) {
+        if (player.y >= canvas.height - 30 - player.radius) {
             player.isJumping = false;
-            player.y = canvas.height - player.radius;
+            player.y = canvas.height - 30 - player.radius;
             player.velocityY = 0;
         }
     }
@@ -97,9 +89,7 @@ function update() {
     ctx.fill();
 
     // Create obstacles
-    if (Math.random() < 0.01) {
-        createObstacle();
-    }
+    createObstacle();
 
     // Update obstacles
     obstacles.forEach((obstacle, index) => {
@@ -143,17 +133,19 @@ function handleGamepad() {
     const gamepads = navigator.getGamepads();
     if (gamepads[0]) {
         const gamepad = gamepads[0];
-        if (gamepad.buttons[0].pressed && !player.isJumping) {
+        if (gamepad.buttons[0].pressed && !player.isJumping) { // Aボタンでジャンプ
             player.isJumping = true;
             player.velocityY = player.jumpPower;
         }
-        if (gamepad.axes[0] < -0.5) {
-            player.x -= player.speed;
-            player.moveDirection = -1;
+        if (gamepad.axes[0] < -0.5 && player.x > 0) {
+            keys['GamepadLeft'] = true;
+        } else {
+            keys['GamepadLeft'] = false;
         }
-        if (gamepad.axes[0] > 0.5) {
-            player.x += player.speed;
-            player.moveDirection = 1;
+        if (gamepad.axes[0] > 0.5 && player.x < canvas.width - player.radius) {
+            keys['GamepadRight'] = true;
+        } else {
+            keys['GamepadRight'] = false;
         }
     }
 }
