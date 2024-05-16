@@ -3,8 +3,8 @@ const ctx = canvas.getContext('2d');
 
 let player = {
     x: 50,
-    y: canvas.height - 60,
-    radius: 20,
+    y: canvas.height - 30,
+    radius: 10, // 主人公のたまを小さくする
     speed: 5,
     gravity: 1,
     jumpPower: 15,
@@ -14,9 +14,10 @@ let player = {
 };
 
 let obstacles = [];
-let gameSpeed = 3;
+let gameSpeed = 1.5; // 敵の速度を遅くする
 let score = 0;
 let keys = {};
+let gameOver = false;
 
 document.addEventListener('keydown', (e) => keys[e.key] = true);
 document.addEventListener('keyup', (e) => keys[e.key] = false);
@@ -30,6 +31,16 @@ function createObstacle() {
         height: height
     };
     obstacles.push(obstacle);
+}
+
+function resetGame() {
+    player.x = 50;
+    player.y = canvas.height - 30;
+    player.velocityY = 0;
+    player.isJumping = false;
+    obstacles = [];
+    score = 0;
+    gameOver = false;
 }
 
 function update() {
@@ -109,8 +120,7 @@ function update() {
             player.x + player.radius > obstacle.x &&
             player.y - player.radius < obstacle.y + obstacle.height &&
             player.y + player.radius > obstacle.y) {
-            alert('ゲームオーバー！ スコア: ' + score);
-            document.location.reload();
+            gameOver = true;
         }
     });
 
@@ -119,7 +129,14 @@ function update() {
     ctx.font = '20px Arial';
     ctx.fillText('Score: ' + score, 10, 20);
 
-    requestAnimationFrame(update);
+    if (!gameOver) {
+        requestAnimationFrame(update);
+    } else {
+        setTimeout(() => {
+            resetGame();
+            update();
+        }, 1000);
+    }
 }
 
 function handleGamepad() {
