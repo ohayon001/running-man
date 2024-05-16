@@ -4,8 +4,8 @@ const status = document.getElementById('status');
 
 let player = {
     x: 50,
-    y: canvas.height - 40, // Adjust to touch the ground
-    radius: 10, // Make the player ball smaller
+    y: canvas.height - 40, // 地面に接するように調整
+    radius: 10, // 主人公のたまを小さくする
     speed: 5,
     gravity: 1,
     jumpPower: 15,
@@ -15,7 +15,7 @@ let player = {
 };
 
 let obstacles = [];
-let gameSpeed = 0.5; // Slow down enemy speed
+const gameSpeed = 1.5; // 敵の速度を一定にする
 let score = 0;
 let keys = {};
 let gameOver = false;
@@ -28,11 +28,11 @@ function updateStatus(message) {
 }
 
 function createObstacle() {
-    if (Math.random() < 0.005) { // Further reduce the number of enemies
-        const height = Math.random() * 30 + 10; // Make enemies lower
+    if (Math.random() < 0.01) { // 敵の出現確率を低くする
+        const height = Math.random() * 30 + 10; // 敵の高さを低くする
         const obstacle = {
             x: canvas.width,
-            y: canvas.height - height - 30, // Adjust to touch the ground
+            y: canvas.height - height - 30, // 地面に接するように調整
             width: 20,
             height: height
         };
