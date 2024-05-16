@@ -15,7 +15,7 @@ let player = {
 };
 
 let obstacles = [];
-const gameSpeed = 60; // Significantly increase enemy speed (4 times the previous value)
+let gameSpeed = 15; // Initial enemy speed
 let keys = {};
 let gameOver = false;
 let lastFrameTime = 0;
@@ -30,12 +30,15 @@ function updateStatus(message) {
 }
 
 function createObstacle() {
-    if (Math.random() < 0.02) { // Increase the number of enemies
+    const currentTime = performance.now();
+    elapsedTime = (currentTime - startTime) / 1000;
+
+    if (Math.random() < 0.02 + elapsedTime * 0.002) { // Increase the number of enemies over time
         const height = Math.random() * 30 + 10; // Make enemies lower
         const obstacleType = Math.random() < 0.33 ? 'type1' : Math.random() < 0.5 ? 'type2' : 'type3'; // Increase enemy types
         const obstacle = {
             x: canvas.width,
-            y: canvas.height - height - 30, // Adjust to touch the ground
+            y: obstacleType === 'type2' ? Math.random() * (canvas.height - 60) : canvas.height - height - 30, // Adjust for flying enemies
             width: 20,
             height: height,
             type: obstacleType,
@@ -75,6 +78,9 @@ function update(deltaTime) {
     // Draw ground
     ctx.fillStyle = '#654321';
     ctx.fillRect(0, canvas.height - 30, canvas.width, 30);
+
+    // Increase game speed over time
+    gameSpeed = 15 + elapsedTime; // Increase speed linearly
 
     // Player movement
     if (keys['ArrowLeft']) {
@@ -229,15 +235,4 @@ function startGame() {
     window.addEventListener('gamepaddisconnected', (event) => {
         console.log('Gamepad disconnected from index %d: %s',
           event.gamepad.index, event.gamepad.id);
-        updateStatus('コントローラーを接続してください...');
-    });
-    lastFrameTime = performance.now();
-    startTime = performance.now();
-    gameLoop();
-}
-
-function gameLoop() {
-    const currentTime = performance.now();
-    const deltaTime = (currentTime - lastFrameTime) / 1000; // 秒に変換
-    lastFrameTime = currentTime;
-    handle
+        updateStatus('コントローラーを接続
