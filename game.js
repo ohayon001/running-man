@@ -180,6 +180,7 @@ function startGame() {
 function gameLoop() {
     handleGamepad();
     update();
+    requestAnimationFrame(gameLoop); // コントローラー入力をループ内で処理するために追加
 }
 
 function handleKeyDown(e) {
@@ -190,7 +191,7 @@ function handleKeyUp(e) {
     keys[e.key] = false;
 }
 
-// キーボードのキーアップイベントをリッスン
+// キーボードのキーアップイベントをリスン
 window.addEventListener('keyup', handleKeyUp);
 
 // ゲームを開始
