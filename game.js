@@ -4,10 +4,10 @@ const status = document.getElementById('status');
 
 let player = {
     x: 50,
-    y: canvas.height - 40, // 地面に接するように調整
-    radius: 10, // 主人公のたまを小さくする
+    y: canvas.height - 40, // Adjust to touch the ground
+    radius: 10, // Make the player ball smaller
     speed: 5,
-    gravity: 1,
+    gravity: 20, // Gravity strength
     jumpPower: 15,
     velocityY: 0,
     isJumping: false,
@@ -15,7 +15,7 @@ let player = {
 };
 
 let obstacles = [];
-const gameSpeed = 1.5; // 敵の速度を一定にする
+const gameSpeed = 3; // Increase enemy speed
 let score = 0;
 let keys = {};
 let gameOver = false;
@@ -29,11 +29,11 @@ function updateStatus(message) {
 }
 
 function createObstacle() {
-    if (Math.random() < 0.01) { // 敵の出現確率を低くする
-        const height = Math.random() * 30 + 10; // 敵の高さを低くする
+    if (Math.random() < 0.01) { // Reduce the number of enemies
+        const height = Math.random() * 30 + 10; // Make enemies lower
         const obstacle = {
             x: canvas.width,
-            y: canvas.height - height - 30, // 地面に接するように調整
+            y: canvas.height - height - 30, // Adjust to touch the ground
             width: 20,
             height: height
         };
@@ -66,22 +66,22 @@ function update(deltaTime) {
 
     // Player movement
     if (keys['ArrowLeft']) {
-        player.x -= player.speed * deltaTime;
+        player.x -= player.speed;
         player.moveDirection = -1;
     }
     if (keys['ArrowRight']) {
-        player.x += player.speed * deltaTime;
+        player.x += player.speed;
         player.moveDirection = 1;
     }
     if (keys['ArrowUp'] && !player.isJumping) {
         player.isJumping = true;
-        player.velocityY = player.jumpPower;
+        player.velocityY = -player.jumpPower;
     }
 
     // Player gravity and jump
     if (player.isJumping) {
-        player.velocityY -= player.gravity * deltaTime;
-        player.y -= player.velocityY * deltaTime;
+        player.velocityY += player.gravity * deltaTime;
+        player.y += player.velocityY;
         if (player.y >= canvas.height - 30 - player.radius) {
             player.isJumping = false;
             player.y = canvas.height - 30 - player.radius;
@@ -155,7 +155,7 @@ function handleGamepad() {
         // Aボタンの入力をチェック
         if (gamepad.buttons[0].pressed && !player.isJumping) {
             player.isJumping = true;
-            player.velocityY = player.jumpPower;
+            player.velocityY = -player.jumpPower;
         }
     } else {
         updateStatus('コントローラーを接続してください...');
