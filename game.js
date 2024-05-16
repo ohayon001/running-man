@@ -1,22 +1,15 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
-const stickmanImage = document.getElementById('stickman');
-const backgroundImage = document.getElementById('background');
 
 let player = {
     x: 50,
     y: canvas.height - 60,
-    width: 20,
-    height: 40,
+    radius: 20,
     speed: 5,
     gravity: 1,
     jumpPower: 15,
     velocityY: 0,
     isJumping: false,
-    frame: 0,
-    frameCount: 3,
-    frameWidth: 20,
-    frameHeight: 40,
     moveDirection: 1 // 1: right, -1: left
 };
 
@@ -44,7 +37,22 @@ function update() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     // Draw background
-    ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#87CEEB'; // Sky color
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Draw mountains
+    ctx.fillStyle = '#4682B4';
+    ctx.beginPath();
+    ctx.moveTo(0, canvas.height);
+    ctx.lineTo(200, 100);
+    ctx.lineTo(400, canvas.height);
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.moveTo(400, canvas.height);
+    ctx.lineTo(600, 150);
+    ctx.lineTo(800, canvas.height);
+    ctx.fill();
 
     // Player movement
     if (keys['ArrowLeft']) {
@@ -64,23 +72,18 @@ function update() {
     if (player.isJumping) {
         player.velocityY -= player.gravity;
         player.y -= player.velocityY;
-        if (player.y >= canvas.height - player.height) {
+        if (player.y >= canvas.height - player.radius) {
             player.isJumping = false;
-            player.y = canvas.height - player.height;
+            player.y = canvas.height - player.radius;
             player.velocityY = 0;
         }
     }
 
     // Draw player
-    player.frame = (player.frame + 1) % player.frameCount;
-    ctx.save();
-    if (player.moveDirection === -1) {
-        ctx.scale(-1, 1);
-        ctx.drawImage(stickmanImage, player.frame * player.frameWidth, 0, player.frameWidth, player.frameHeight, -player.x - player.width, player.y, player.width, player.height);
-    } else {
-        ctx.drawImage(stickmanImage, player.frame * player.frameWidth, 0, player.frameWidth, player.frameHeight, player.x, player.y, player.width, player.height);
-    }
-    ctx.restore();
+    ctx.fillStyle = 'red';
+    ctx.beginPath();
+    ctx.arc(player.x, player.y, player.radius, 0, Math.PI * 2);
+    ctx.fill();
 
     // Create obstacles
     if (Math.random() < 0.01) {
@@ -98,14 +101,14 @@ function update() {
         }
 
         // Draw obstacles
-        ctx.fillStyle = 'red';
+        ctx.fillStyle = 'green';
         ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
 
         // Check for collisions
-        if (player.x < obstacle.x + obstacle.width &&
-            player.x + player.width > obstacle.x &&
-            player.y < obstacle.y + obstacle.height &&
-            player.y + player.height > obstacle.y) {
+        if (player.x - player.radius < obstacle.x + obstacle.width &&
+            player.x + player.radius > obstacle.x &&
+            player.y - player.radius < obstacle.y + obstacle.height &&
+            player.y + player.radius > obstacle.y) {
             alert('ゲームオーバー！ スコア: ' + score);
             document.location.reload();
         }
@@ -151,7 +154,4 @@ function gameLoop() {
     update();
 }
 
-// Wait for images to load before starting the game
-stickmanImage.onload = () => {
-    backgroundImage.onload = startGame;
-};
+startGame();
