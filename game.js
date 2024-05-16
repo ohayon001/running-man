@@ -242,4 +242,30 @@ function startGame() {
     gameLoop();
 }
 
-function gameLoop()
+function gameLoop() {
+    const currentTime = performance.now();
+    const delta
+function gameLoop() {
+    const currentTime = performance.now();
+    const deltaTime = (currentTime - lastFrameTime) / 1000; // 秒に変換
+    lastFrameTime = currentTime;
+    handleGamepad();
+    update(deltaTime);
+    if (!gameOver) {
+        requestAnimationFrame(gameLoop); // ゲームループを継続
+    }
+}
+
+function handleKeyDown(e) {
+    keys[e.key] = true;
+}
+
+function handleKeyUp(e) {
+    keys[e.key] = false;
+}
+
+// キーボードのキーアップイベントをリスン
+window.addEventListener('keyup', handleKeyUp);
+
+// ゲームを開始
+startGame();
