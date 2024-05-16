@@ -236,3 +236,34 @@ function startGame() {
         console.log('Gamepad disconnected from index %d: %s',
           event.gamepad.index, event.gamepad.id);
         updateStatus('コントローラーを接続
+        updateStatus('コントローラーを接続してください...');
+    });
+    lastFrameTime = performance.now();
+    startTime = performance.now();
+    gameLoop();
+}
+
+function gameLoop() {
+    const currentTime = performance.now();
+    const deltaTime = (currentTime - lastFrameTime) / 1000; // 秒に変換
+    lastFrameTime = currentTime;
+    handleGamepad();
+    update(deltaTime);
+    if (!gameOver) {
+        requestAnimationFrame(gameLoop); // ゲームループを継続
+    }
+}
+
+function handleKeyDown(e) {
+    keys[e.key] = true;
+}
+
+function handleKeyUp(e) {
+    keys[e.key] = false;
+}
+
+// キーボードのキーアップイベントをリッスン
+window.addEventListener('keyup', handleKeyUp);
+
+// ゲームを開始
+startGame();
