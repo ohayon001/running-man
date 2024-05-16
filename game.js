@@ -58,15 +58,15 @@ function update() {
     ctx.fillRect(0, canvas.height - 30, canvas.width, 30);
 
     // Player movement
-    if (keys['ArrowLeft'] || (keys['GamepadLeft'] && player.x > 0)) {
+    if (keys['ArrowLeft']) {
         player.x -= player.speed;
         player.moveDirection = -1;
     }
-    if (keys['ArrowRight'] || (keys['GamepadRight'] && player.x < canvas.width - player.radius)) {
+    if (keys['ArrowRight']) {
         player.x += player.speed;
         player.moveDirection = 1;
     }
-    if ((keys['ArrowUp'] || keys['GamepadA']) && !player.isJumping) {
+    if (keys['ArrowUp'] && !player.isJumping) {
         player.isJumping = true;
         player.velocityY = player.jumpPower;
     }
@@ -133,19 +133,19 @@ function handleGamepad() {
     const gamepads = navigator.getGamepads();
     if (gamepads[0]) {
         const gamepad = gamepads[0];
-        if (gamepad.buttons[0].pressed && !player.isJumping) { // Aボタンでジャンプ
+        // コントローラーの左スティックの入力をチェック
+        if (gamepad.axes[0] < -0.5) {
+            player.x -= player.speed;
+            player.moveDirection = -1;
+        }
+        if (gamepad.axes[0] > 0.5) {
+            player.x += player.speed;
+            player.moveDirection = 1;
+        }
+        // コントローラーのAボタンの入力をチェック
+        if (gamepad.buttons[0].pressed && !player.isJumping) {
             player.isJumping = true;
             player.velocityY = player.jumpPower;
-        }
-        if (gamepad.axes[0] < -0.5 && player.x > 0) {
-            keys['GamepadLeft'] = true;
-        } else {
-            keys['GamepadLeft'] = false;
-        }
-        if (gamepad.axes[0] > 0.5 && player.x < canvas.width - player.radius) {
-            keys['GamepadRight'] = true;
-        } else {
-            keys['GamepadRight'] = false;
         }
     }
 }
@@ -154,6 +154,9 @@ function startGame() {
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('gamepadconnected', () => {
         console.log('Gamepad connected');
+    });
+    window.addEventListener('gamepaddisconnected', () => {
+        console.log('Gamepad disconnected');
     });
     gameLoop();
 }
@@ -166,6 +169,13 @@ function gameLoop() {
 function handleKeyDown(e) {
     keys[e.key] = true;
 }
+
+function handleKeyUp(e) {
+    keys[e.key] = false;
+}
+
+// キーボードのキーアップイベントをリスン
+window.addEventListener('keyup', handleKeyUp);
 
 // Start the game
 startGame();
