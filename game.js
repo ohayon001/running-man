@@ -4,8 +4,8 @@ const status = document.getElementById('status');
 
 let player = {
     x: 50,
-    y: canvas.height - 40, // 地面に接するように調整
-    radius: 10, // 主人公のたまを小さくする
+    y: canvas.height - 40, // Adjust to touch the ground
+    radius: 10, // Make the player ball smaller
     speed: 5,
     gravity: 20, // Gravity strength
     jumpPower: 15,
@@ -15,7 +15,7 @@ let player = {
 };
 
 let obstacles = [];
-const gameSpeed = 5; // Increase enemy speed
+const gameSpeed = 10; // Increase enemy speed
 let score = 0;
 let keys = {};
 let gameOver = false;
@@ -31,7 +31,7 @@ function updateStatus(message) {
 }
 
 function createObstacle() {
-    if (Math.random() < 0.01) { // Reduce the number of enemies
+    if (Math.random() < 0.02) { // Increase the number of enemies
         const height = Math.random() * 30 + 10; // Make enemies lower
         const obstacleType = Math.random() < 0.5 ? 'type1' : 'type2'; // Increase enemy types
         const obstacle = {
@@ -41,7 +41,13 @@ function createObstacle() {
             height: height,
             type: obstacleType
         };
-        obstacles.push(obstacle);
+
+        // Check if the new obstacle overlaps with any existing obstacles
+        const isOverlapping = obstacles.some(obs => obstacle.x < obs.x + obs.width && obstacle.x + obstacle.width > obs.x);
+
+        if (!isOverlapping) {
+            obstacles.push(obstacle);
+        }
     }
 }
 
@@ -139,6 +145,11 @@ function update(deltaTime) {
     // Display time
     elapsedTime = (performance.now() - startTime) / 1000; // Time in seconds
     ctx.fillText('Time: ' + elapsedTime.toFixed(2) + 's', 10, 50);
+
+    if (elapsedTime >= 60) {
+        gameOver = true;
+        alert('Stage 1 cleared!');
+    }
 
     if (gameOver) {
         setTimeout(() => {
