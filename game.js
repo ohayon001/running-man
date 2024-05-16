@@ -15,7 +15,7 @@ let player = {
 };
 
 let obstacles = [];
-let gameSpeed = 1.5; // Slow down enemy speed
+let gameSpeed = 0.5; // Slow down enemy speed
 let score = 0;
 let keys = {};
 let gameOver = false;
@@ -28,7 +28,7 @@ function updateStatus(message) {
 }
 
 function createObstacle() {
-    if (Math.random() < 0.01) { // Reduce the number of enemies
+    if (Math.random() < 0.005) { // Further reduce the number of enemies
         const height = Math.random() * 30 + 10; // Make enemies lower
         const obstacle = {
             x: canvas.width,
