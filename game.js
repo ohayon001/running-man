@@ -154,4 +154,9 @@ function gameLoop() {
     update();
 }
 
+function handleKeyDown(e) {
+    keys[e.key] = true;
+}
+
+// Start the game
 startGame();
