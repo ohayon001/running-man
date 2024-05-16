@@ -19,6 +19,7 @@ const gameSpeed = 1.5; // 敵の速度を一定にする
 let score = 0;
 let keys = {};
 let gameOver = false;
+let lastFrameTime = 0;
 
 document.addEventListener('keydown', (e) => keys[e.key] = true);
 document.addEventListener('keyup', (e) => keys[e.key] = false);
@@ -48,9 +49,10 @@ function resetGame() {
     obstacles = [];
     score = 0;
     gameOver = false;
+    lastFrameTime = 0;
 }
 
-function update() {
+function update(deltaTime) {
     // Clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -64,11 +66,11 @@ function update() {
 
     // Player movement
     if (keys['ArrowLeft']) {
-        player.x -= player.speed;
+        player.x -= player.speed * deltaTime;
         player.moveDirection = -1;
     }
     if (keys['ArrowRight']) {
-        player.x += player.speed;
+        player.x += player.speed * deltaTime;
         player.moveDirection = 1;
     }
     if (keys['ArrowUp'] && !player.isJumping) {
@@ -78,8 +80,8 @@ function update() {
 
     // Player gravity and jump
     if (player.isJumping) {
-        player.velocityY -= player.gravity;
-        player.y -= player.velocityY;
+        player.velocityY -= player.gravity * deltaTime;
+        player.y -= player.velocityY * deltaTime;
         if (player.y >= canvas.height - 30 - player.radius) {
             player.isJumping = false;
             player.y = canvas.height - 30 - player.radius;
@@ -98,7 +100,7 @@ function update() {
 
     // Update obstacles
     obstacles.forEach((obstacle, index) => {
-        obstacle.x -= gameSpeed;
+        obstacle.x -= gameSpeed * deltaTime;
 
         // Remove off-screen obstacles
         if (obstacle.x + obstacle.width < 0) {
@@ -124,12 +126,11 @@ function update() {
     ctx.font = '20px Arial';
     ctx.fillText('Score: ' + score, 10, 20);
 
-    if (!gameOver) {
-        requestAnimationFrame(update);
-    } else {
+    if (gameOver) {
         setTimeout(() => {
             resetGame();
-            update();
+            lastFrameTime = performance.now();
+            gameLoop();
         }, 1000);
     }
 }
@@ -174,13 +175,19 @@ function startGame() {
           event.gamepad.index, event.gamepad.id);
         updateStatus('コントローラーを接続してください...');
     });
+    lastFrameTime = performance.now();
     gameLoop();
 }
 
 function gameLoop() {
+    const currentTime = performance.now();
+    const deltaTime = (currentTime - lastFrameTime) / 1000; // 秒に変換
+    lastFrameTime = currentTime;
     handleGamepad();
-    update();
-    requestAnimationFrame(gameLoop); // コントローラー入力をループ内で処理するために追加
+    update(deltaTime);
+    if (!gameOver) {
+        requestAnimationFrame(gameLoop); // ゲームループを継続
+    }
 }
 
 function handleKeyDown(e) {
@@ -191,7 +198,7 @@ function handleKeyUp(e) {
     keys[e.key] = false;
 }
 
-// キーボードのキーアップイベントをリスン
+// キーボードのキーアップイベントをリッスン
 window.addEventListener('keyup', handleKeyUp);
 
 // ゲームを開始
