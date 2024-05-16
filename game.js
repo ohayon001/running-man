@@ -16,7 +16,6 @@ let player = {
 
 let obstacles = [];
 const gameSpeed = 60; // Significantly increase enemy speed (4 times the previous value)
-let score = 0;
 let keys = {};
 let gameOver = false;
 let lastFrameTime = 0;
@@ -33,13 +32,15 @@ function updateStatus(message) {
 function createObstacle() {
     if (Math.random() < 0.02) { // Increase the number of enemies
         const height = Math.random() * 30 + 10; // Make enemies lower
-        const obstacleType = Math.random() < 0.5 ? 'type1' : 'type2'; // Increase enemy types
+        const obstacleType = Math.random() < 0.33 ? 'type1' : Math.random() < 0.5 ? 'type2' : 'type3'; // Increase enemy types
         const obstacle = {
             x: canvas.width,
             y: canvas.height - height - 30, // Adjust to touch the ground
             width: 20,
             height: height,
-            type: obstacleType
+            type: obstacleType,
+            velocityY: obstacleType === 'type3' ? -5 : 0, // Initial velocity for jumping enemies
+            jumpTimer: 0 // Timer for jumping enemies
         };
 
         // Check if the new obstacle overlaps with any existing obstacles
@@ -57,7 +58,6 @@ function resetGame() {
     player.velocityY = 0;
     player.isJumping = false;
     obstacles = [];
-    score = 0;
     gameOver = false;
     lastFrameTime = 0;
     startTime = performance.now();
@@ -124,17 +124,37 @@ function update(deltaTime) {
     obstacles.forEach((obstacle, index) => {
         obstacle.x -= gameSpeed * deltaTime;
 
+        // Handle different obstacle types
+        if (obstacle.type === 'type2' && elapsedTime >= 20) {
+            // Floating enemy
+            obstacle.y += Math.sin(obstacle.x / 50) * 2; // Sine wave motion
+        } else if (obstacle.type === 'type3') {
+            // Jumping enemy
+            obstacle.jumpTimer += deltaTime;
+            if (obstacle.jumpTimer >= 1) { // Jump every second
+                obstacle.velocityY = -10;
+                obstacle.jumpTimer = 0;
+            }
+            obstacle.velocityY += 20 * deltaTime; // Gravity
+            obstacle.y += obstacle.velocityY;
+            if (obstacle.y >= canvas.height - 30 - obstacle.height) {
+                obstacle.y = canvas.height - 30 - obstacle.height;
+                obstacle.velocityY = 0;
+            }
+        }
+
         // Remove off-screen obstacles
         if (obstacle.x + obstacle.width < 0) {
             obstacles.splice(index, 1);
-            score++;
         }
 
         // Draw obstacles
         if (obstacle.type === 'type1') {
             ctx.fillStyle = 'green';
-        } else {
+        } else if (obstacle.type === 'type2') {
             ctx.fillStyle = 'blue';
+        } else {
+            ctx.fillStyle = 'orange';
         }
         ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
 
@@ -147,13 +167,10 @@ function update(deltaTime) {
         }
     });
 
-    // Display score
-    ctx.fillStyle = 'black';
-    ctx.font = '20px Arial';
-    ctx.fillText('Score: ' + score, 10, 20);
-
     // Display time
     elapsedTime = (performance.now() - startTime) / 1000; // Time in seconds
+    ctx.fillStyle = 'black';
+    ctx.font = '20px Arial';
     ctx.fillText('Time: ' + elapsedTime.toFixed(2) + 's', 10, 50);
 
     if (elapsedTime >= 60) {
@@ -223,23 +240,4 @@ function gameLoop() {
     const currentTime = performance.now();
     const deltaTime = (currentTime - lastFrameTime) / 1000; // 秒に変換
     lastFrameTime = currentTime;
-    handleGamepad();
-    update(deltaTime);
-    if (!gameOver) {
-        requestAnimationFrame(gameLoop); // ゲームループを継続
-    }
-}
-
-function handleKeyDown(e) {
-    keys[e.key] = true;
-}
-
-function handleKeyUp(e) {
-    keys[e.key] = false;
-}
-
-// キーボードのキーアップイベントをリスン
-window.addEventListener('keyup', handleKeyUp);
-
-// ゲームを開始
-startGame();
+    handle
