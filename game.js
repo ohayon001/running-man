@@ -27,7 +27,7 @@ function createObstacle() {
         const height = Math.random() * 30 + 10; // 敵の高さを低くする
         const obstacle = {
             x: canvas.width,
-            y: canvas.height - height - 30, // Adjust to touch the ground
+            y: canvas.height - height - 30, // 地面に接するように調整
             width: 20,
             height: height
         };
@@ -133,6 +133,8 @@ function handleGamepad() {
     const gamepads = navigator.getGamepads();
     if (gamepads[0]) {
         const gamepad = gamepads[0];
+        console.log(`Gamepad connected: ${gamepad.id}`);
+        console.log(`Axes: ${gamepad.axes}, Buttons: ${gamepad.buttons.map(b => b.pressed)}`);
 
         // 左スティックの入力をチェック
         if (gamepad.axes[0] < -0.5) {
