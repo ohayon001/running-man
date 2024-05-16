@@ -4,8 +4,8 @@ const status = document.getElementById('status');
 
 let player = {
     x: 50,
-    y: canvas.height - 40, // Adjust to touch the ground
-    radius: 10, // Make the player ball smaller
+    y: canvas.height - 40, // 地面に接するように調整
+    radius: 10, // 主人公のたまを小さくする
     speed: 5,
     gravity: 20, // Gravity strength
     jumpPower: 15,
@@ -15,11 +15,13 @@ let player = {
 };
 
 let obstacles = [];
-const gameSpeed = 3; // Increase enemy speed
+const gameSpeed = 5; // Increase enemy speed
 let score = 0;
 let keys = {};
 let gameOver = false;
 let lastFrameTime = 0;
+let startTime = 0;
+let elapsedTime = 0;
 
 document.addEventListener('keydown', (e) => keys[e.key] = true);
 document.addEventListener('keyup', (e) => keys[e.key] = false);
@@ -31,11 +33,13 @@ function updateStatus(message) {
 function createObstacle() {
     if (Math.random() < 0.01) { // Reduce the number of enemies
         const height = Math.random() * 30 + 10; // Make enemies lower
+        const obstacleType = Math.random() < 0.5 ? 'type1' : 'type2'; // Increase enemy types
         const obstacle = {
             x: canvas.width,
             y: canvas.height - height - 30, // Adjust to touch the ground
             width: 20,
-            height: height
+            height: height,
+            type: obstacleType
         };
         obstacles.push(obstacle);
     }
@@ -50,6 +54,8 @@ function resetGame() {
     score = 0;
     gameOver = false;
     lastFrameTime = 0;
+    startTime = performance.now();
+    elapsedTime = 0;
 }
 
 function update(deltaTime) {
@@ -109,7 +115,11 @@ function update(deltaTime) {
         }
 
         // Draw obstacles
-        ctx.fillStyle = 'green';
+        if (obstacle.type === 'type1') {
+            ctx.fillStyle = 'green';
+        } else {
+            ctx.fillStyle = 'blue';
+        }
         ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
 
         // Check for collisions
@@ -125,6 +135,10 @@ function update(deltaTime) {
     ctx.fillStyle = 'black';
     ctx.font = '20px Arial';
     ctx.fillText('Score: ' + score, 10, 20);
+
+    // Display time
+    elapsedTime = (performance.now() - startTime) / 1000; // Time in seconds
+    ctx.fillText('Time: ' + elapsedTime.toFixed(2) + 's', 10, 50);
 
     if (gameOver) {
         setTimeout(() => {
@@ -176,6 +190,7 @@ function startGame() {
         updateStatus('コントローラーを接続してください...');
     });
     lastFrameTime = performance.now();
+    startTime = performance.now();
     gameLoop();
 }
 
@@ -198,7 +213,7 @@ function handleKeyUp(e) {
     keys[e.key] = false;
 }
 
-// キーボードのキーアップイベントをリッスン
+// キーボードのキーアップイベントをリスン
 window.addEventListener('keyup', handleKeyUp);
 
 // ゲームを開始
