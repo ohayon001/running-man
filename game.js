@@ -3,8 +3,8 @@ const ctx = canvas.getContext('2d');
 
 let player = {
     x: 50,
-    y: canvas.height - 40, // 地面に接するように調整
-    radius: 10, // 主人公のたまを小さくする
+    y: canvas.height - 40, // Adjust to touch the ground
+    radius: 10, // Make the player ball smaller
     speed: 5,
     gravity: 1,
     jumpPower: 15,
@@ -14,7 +14,7 @@ let player = {
 };
 
 let obstacles = [];
-let gameSpeed = 1.5; // 敵の速度を遅くする
+let gameSpeed = 1.5; // Slow down enemy speed
 let score = 0;
 let keys = {};
 let gameOver = false;
@@ -23,11 +23,11 @@ document.addEventListener('keydown', (e) => keys[e.key] = true);
 document.addEventListener('keyup', (e) => keys[e.key] = false);
 
 function createObstacle() {
-    if (Math.random() < 0.01) { // 敵の出現確率を低くする
-        const height = Math.random() * 30 + 10; // 敵の高さを低くする
+    if (Math.random() < 0.01) { // Reduce the number of enemies
+        const height = Math.random() * 30 + 10; // Make enemies lower
         const obstacle = {
             x: canvas.width,
-            y: canvas.height - height,
+            y: canvas.height - height - 30, // Adjust to touch the ground
             width: 20,
             height: height
         };
@@ -133,7 +133,9 @@ function handleGamepad() {
     const gamepads = navigator.getGamepads();
     if (gamepads[0]) {
         const gamepad = gamepads[0];
-        // コントローラーの左スティックの入力をチェック
+        console.log(`Axes: ${gamepad.axes}, Buttons: ${gamepad.buttons.map(b => b.pressed)}`); // デバッグ出力
+
+        // 左スティックの入力をチェック
         if (gamepad.axes[0] < -0.5) {
             player.x -= player.speed;
             player.moveDirection = -1;
@@ -142,7 +144,7 @@ function handleGamepad() {
             player.x += player.speed;
             player.moveDirection = 1;
         }
-        // コントローラーのAボタンの入力をチェック
+        // Aボタンの入力をチェック
         if (gamepad.buttons[0].pressed && !player.isJumping) {
             player.isJumping = true;
             player.velocityY = player.jumpPower;
@@ -174,8 +176,8 @@ function handleKeyUp(e) {
     keys[e.key] = false;
 }
 
-// キーボードのキーアップイベントをリスン
+// キーボードのキーアップイベントをリッスン
 window.addEventListener('keyup', handleKeyUp);
 
-// Start the game
+// ゲームを開始
 startGame();
