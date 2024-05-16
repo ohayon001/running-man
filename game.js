@@ -15,7 +15,7 @@ let player = {
 };
 
 let obstacles = [];
-const gameSpeed = 15; // Significantly increase enemy speed
+const gameSpeed = 60; // Significantly increase enemy speed (4 times the previous value)
 let score = 0;
 let keys = {};
 let gameOver = false;
@@ -43,7 +43,7 @@ function createObstacle() {
         };
 
         // Check if the new obstacle overlaps with any existing obstacles
-        const isOverlapping = obstacles.some(obs => obstacle.x < obs.x + obs.width && obstacle.x + obstacle.width > obs.x);
+        const isOverlapping = obstacles.some(obs => obstacle.x < obs.x + obs.width + 50 && obstacle.x + obstacle.width > obs.x - 50); // Add space between obstacles
 
         if (!isOverlapping) {
             obstacles.push(obstacle);
@@ -79,11 +79,15 @@ function update(deltaTime) {
     // Player movement
     if (keys['ArrowLeft']) {
         player.x -= player.speed;
-        player.moveDirection = -1;
+        if (player.x - player.radius < 0) { // Prevent player from going off screen to the left
+            player.x = player.radius;
+        }
     }
     if (keys['ArrowRight']) {
         player.x += player.speed;
-        player.moveDirection = 1;
+        if (player.x + player.radius > canvas.width) { // Prevent player from going off screen to the right
+            player.x = canvas.width - player.radius;
+        }
     }
     if (keys['ArrowUp'] && !player.isJumping) {
         player.isJumping = true;
@@ -99,6 +103,12 @@ function update(deltaTime) {
             player.y = canvas.height - 30 - player.radius;
             player.velocityY = 0;
         }
+    }
+
+    // Prevent player from going off screen vertically
+    if (player.y - player.radius < 0) {
+        player.y = player.radius;
+        player.velocityY = 0;
     }
 
     // Draw player
@@ -171,11 +181,15 @@ function handleGamepad() {
         // 左スティックの入力をチェック
         if (gamepad.axes[0] < -0.5) {
             player.x -= player.speed;
-            player.moveDirection = -1;
+            if (player.x - player.radius < 0) { // Prevent player from going off screen to the left
+                player.x = player.radius;
+            }
         }
         if (gamepad.axes[0] > 0.5) {
             player.x += player.speed;
-            player.moveDirection = 1;
+            if (player.x + player.radius > canvas.width) { // Prevent player from going off screen to the right
+                player.x = canvas.width - player.radius;
+            }
         }
         // Aボタンの入力をチェック
         if (gamepad.buttons[0].pressed && !player.isJumping) {
