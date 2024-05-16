@@ -133,6 +133,7 @@ function handleGamepad() {
     const gamepads = navigator.getGamepads();
     if (gamepads[0]) {
         const gamepad = gamepads[0];
+        console.log(`Gamepad connected: ${gamepad.id}`); // デバッグ出力
         console.log(`Axes: ${gamepad.axes}, Buttons: ${gamepad.buttons.map(b => b.pressed)}`); // デバッグ出力
 
         // 左スティックの入力をチェック
