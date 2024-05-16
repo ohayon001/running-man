@@ -239,12 +239,12 @@ function startGame() {
     });
     lastFrameTime = performance.now();
     startTime = performance.now();
+    game
+    lastFrameTime = performance.now();
+    startTime = performance.now();
     gameLoop();
 }
 
-function gameLoop() {
-    const currentTime = performance.now();
-    const delta
 function gameLoop() {
     const currentTime = performance.now();
     const deltaTime = (currentTime - lastFrameTime) / 1000; // 秒に変換
