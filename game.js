@@ -15,7 +15,7 @@ let player = {
 };
 
 let obstacles = [];
-const gameSpeed = 10; // Increase enemy speed
+const gameSpeed = 15; // Significantly increase enemy speed
 let score = 0;
 let keys = {};
 let gameOver = false;
