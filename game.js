@@ -138,14 +138,20 @@ function handleGamepad() {
     }
 }
 
-window.addEventListener('keydown', handleKeyDown);
-window.addEventListener('gamepadconnected', () => {
-    console.log('Gamepad connected');
-});
+function startGame() {
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('gamepadconnected', () => {
+        console.log('Gamepad connected');
+    });
+    gameLoop();
+}
 
 function gameLoop() {
     handleGamepad();
     update();
 }
 
-gameLoop();
+// Wait for images to load before starting the game
+stickmanImage.onload = () => {
+    backgroundImage.onload = startGame;
+};
